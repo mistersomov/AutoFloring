@@ -1,0 +1,10 @@
+sdkconfig
+sdkconfig.defaults
+sdkconfig.old
+
+/build
+/main/build
+
+/managed_components
+
+**/.DS_Store
