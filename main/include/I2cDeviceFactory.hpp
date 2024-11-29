@@ -34,7 +34,7 @@ namespace autflr {
             };
             i2c_master_dev_handle_t handler;
 
-            ESP_ERROR_CHECK(i2c_master_probe(mBusHandler.get(), address, 10000));
+            ESP_ERROR_CHECK(i2c_master_probe(mBusHandler.get(), address, PROBE_WAITING_TIMEOUT));
             ESP_ERROR_CHECK(i2c_master_bus_add_device(mBusHandler.get(), &cfg, &handler));
 
             return std::make_unique<DeviceType>(handler, std::forward<Args>(args)...);
@@ -57,7 +57,6 @@ namespace autflr {
             mBusHandler.reset(handler);
         }
 
-
     private:
         struct BusHandlerDeleter {
             void operator()(i2c_master_bus_t* pBus) {
@@ -72,6 +71,7 @@ namespace autflr {
         static constexpr int32_t I2C_PORT_DEFAULT = I2C_NUM_0;
         static constexpr uint32_t SCL_SPEED_HZ_DEFAULT = 100000;
         static constexpr uint8_t GLITCH_IGNORE_COUNT_DEFAULT = 7;
+        static constexpr uint16_t PROBE_WAITING_TIMEOUT = 10000;
     };
 }
 
