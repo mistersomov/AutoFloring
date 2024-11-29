@@ -12,11 +12,16 @@ microcontroller. It uses sensors to monitor soil moisture and water levels, cont
 - **Error Handling**: Provides warnings for low water levels and device initialization failures.
 
 ## Hardware Requirements
-- ESP32 Development Board ![ESP32](/assets/esp.avif)
-- Soil Moisture Sensor ![Soil Sensor](/assets/soil_sensor.webp)
-- Water Level Sensor ![Water sensor](/assets/water_sensor.jpg)
-- 16x2 LCD with I2C Interface (e.g. 1602a) ![LCD Display](/assets/lcd.webp)
-- Water Pump 5V ![Water pump](/assets/pump.avif)
+- ESP32 Development Board
+![ESP32](/assets/esp.avif =100x)
+- Soil Moisture Sensor
+![Soil Sensor](/assets/soil_sensor.webp)
+- Water Level Sensor
+![Water sensor](/assets/water_sensor.jpg)
+- 16x2 LCD with I2C Interface (e.g. 1602a)
+![LCD Display](/assets/lcd.webp)
+- Water Pump 5V
+![Water pump](/assets/pump.avif =100x)
 - Power Supply (e.g., battery or solar panel)
 
 ## Future Enhancements
