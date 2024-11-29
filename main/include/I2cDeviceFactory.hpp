@@ -8,12 +8,6 @@
 #include <cstdint>
 
 namespace autflr {
-    const gpio_num_t I2C_MASTER_SDA_IO = GPIO_NUM_21;
-    const gpio_num_t I2C_MASTER_SCL_IO = GPIO_NUM_22;
-    constexpr int32_t I2C_PORT_DEFAULT = I2C_NUM_0;
-    constexpr uint32_t SCL_SPEED_HZ_DEFAULT = 100000;
-    constexpr uint8_t GLITCH_IGNORE_COUNT_DEFAULT = 7;
-
     class I2cDeviceFactory {
     public:
         I2cDeviceFactory(const I2cDeviceFactory&) = delete;
@@ -73,6 +67,11 @@ namespace autflr {
             }
         };
         std::unique_ptr<i2c_master_bus_t, BusHandlerDeleter> mBusHandler{nullptr};
+        const gpio_num_t I2C_MASTER_SDA_IO = GPIO_NUM_21;
+        const gpio_num_t I2C_MASTER_SCL_IO = GPIO_NUM_22;
+        static constexpr int32_t I2C_PORT_DEFAULT = I2C_NUM_0;
+        static constexpr uint32_t SCL_SPEED_HZ_DEFAULT = 100000;
+        static constexpr uint8_t GLITCH_IGNORE_COUNT_DEFAULT = 7;
     };
 }
 
