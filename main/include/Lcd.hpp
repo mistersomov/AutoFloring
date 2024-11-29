@@ -1,12 +1,12 @@
 #ifndef LCD_HPP
 #define LCD_HPP
 
-#include "Device.hpp"
+#include "I2cSlaveDevice.hpp"
 
 #include <string>
 
 namespace autflr {
-    class Lcd : Device {
+    class Lcd : I2cSlaveDevice {
     public:
         Lcd(i2c_master_dev_t* pHandler);
 

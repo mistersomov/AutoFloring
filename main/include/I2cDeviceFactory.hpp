@@ -1,7 +1,7 @@
 #ifndef I2C_DEVICE_FACTORY_HPP
 #define I2C_DEVICE_FACTORY_HPP
 
-#include "Device.hpp"
+#include "I2cSlaveDevice.hpp"
 
 #include "driver/gpio.h"
 

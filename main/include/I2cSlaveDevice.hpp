@@ -1,15 +1,15 @@
-#ifndef DEVICE_HPP
-#define DEVICE_HPP
+#ifndef I2C_SLAVE_DEVICE_HPP
+#define I2C_SLAVE_DEVICE_HPP
 
 #include "driver/i2c_master.h"
 
 #include <memory>
 
 namespace autflr {
-    class Device {
+    class I2cSlaveDevice {
     public:
-        Device(i2c_master_dev_t* pHandler) : mHandler{std::move(pHandler)} {}
-        virtual ~Device() = default;
+        I2cSlaveDevice(i2c_master_dev_t* pHandler) : mHandler{std::move(pHandler)} {}
+        virtual ~I2cSlaveDevice() = default;
 
     protected:
         virtual void initialize() const = 0;

@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace autflr {
-    Lcd::Lcd(i2c_master_dev_t* pHandler) : Device(pHandler) {
+    Lcd::Lcd(i2c_master_dev_t* pHandler) : I2cSlaveDevice(pHandler) {
         initialize();
         clear();
     }
@@ -40,7 +40,7 @@ namespace autflr {
     }
 
     void Lcd::setBacklight(bool enable) const {
-        sendCmd(0x08 & enable);
+        sendCmd(0x00);
     }
 
     void Lcd::putCursor(uint8_t row, uint32_t col) const {
