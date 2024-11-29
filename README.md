@@ -17,7 +17,7 @@ microcontroller. It uses sensors to monitor soil moisture and water levels, cont
 - Soil Moisture Sensor
 ![Soil Sensor](/assets/soil_sensor.webp)
 - Water Level Sensor
-![Water sensor](/assets/water_sensor.jpg =100x)
+![Water sensor](/assets/water_sensor.jpg)
 - 16x2 LCD with I2C Interface (e.g. 1602a)
 ![LCD Display](/assets/lcd.webp)
 - Water Pump 5V
