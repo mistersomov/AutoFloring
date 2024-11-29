@@ -27,16 +27,12 @@ namespace autflr {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
 
-        inline void setBacklight(bool enable) const {
-
-        }
-
     protected:
         void initialize() const override;
 
     private:
-        void sendCmd(char cmd) const;
-        void sendData(char data) const;
+        void sendCmd(uint8_t cmd) const;
+        void sendData(uint8_t data) const;
 
         static constexpr uint8_t ENABLE_BIT = 0x0C;
         static constexpr uint8_t DISABLE_BIT = 0x08;

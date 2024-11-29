@@ -57,9 +57,9 @@ namespace autflr {
         }
     }
 
-    void Lcd::sendCmd(char cmd) const {
-        char highOrderBit = cmd & 0xF0;
-        char lowOrderBit = cmd << 4;
+    void Lcd::sendCmd(uint8_t cmd) const {
+        uint8_t highOrderBit = cmd & 0xF0;
+        uint8_t lowOrderBit = cmd << 4;
         std::vector<uint8_t> bits = {
             static_cast<uint8_t>(highOrderBit | ENABLE_BIT),
             static_cast<uint8_t>(highOrderBit | DISABLE_BIT),
@@ -73,9 +73,9 @@ namespace autflr {
         }
     }
 
-    void Lcd::sendData(char data) const {
-        char highOrderBit = data & 0xF0;
-        char lowOrderBit = data << 4;
+    void Lcd::sendData(uint8_t data) const {
+        uint8_t highOrderBit = data & 0xF0;
+        uint8_t lowOrderBit = data << 4;
         std::vector<uint8_t> bits = {
             static_cast<uint8_t>(highOrderBit | ENABLE_DATA),
             static_cast<uint8_t>(highOrderBit | DISABLE_DATA),
