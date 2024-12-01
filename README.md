@@ -1,4 +1,3 @@
-
 # Auto-Irrigation System for ESP32 🌱💧
 This project is an automated irrigation system powered by an ESP32 
 microcontroller. It uses sensors to monitor soil moisture and water levels, controls a pump for irrigation, and logs information on an LCD display. The system ensures efficient water usage while minimizing human intervention.
@@ -13,16 +12,33 @@ microcontroller. It uses sensors to monitor soil moisture and water levels, cont
 
 ## Hardware Requirements
 - ESP32 Development Board
-![ESP32](/assets/esp.avif)
 - Soil Moisture Sensor
-![Soil Sensor](/assets/soil_sensor.webp)
 - Water Level Sensor
-![Water sensor](/assets/water_sensor.jpg)
-- 16x2 LCD with I2C Interface (e.g. 1602a)
-![LCD Display](/assets/lcd.webp)
+- 16x2 LCD with I2C Interface
 - Water Pump 5V
-![Water pump](/assets/pump.avif)
 - Power Supply (e.g., battery or solar panel)
+
+## Getting Started
+
+### Installation
+1. Clone the repository:
+
+```bash
+  git clone https://github.com/mistersomov/IoT-AutoIrrigation
+```
+2. Install ESP-IDF (Espressif IoT Development Framework):
+If you do not have the ESP-IDF Framework pre-installed, follow the installation instructions on the official documentation
+    [ESP-IDF Get Started](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/get-started/index.html#installation).
+Otherwise skip this step.
+
+3. Configure Wi-Fi credentials and thresholds in `main.cpp`
+
+### Build
+After completing the “Installation” item, to build the project, run the command:
+
+```bash
+    idf.py build flash monitor
+```
 
 ## Future Enhancements
 - Integration with cloud platforms for remote monitoring.
