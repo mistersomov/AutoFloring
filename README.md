@@ -37,8 +37,9 @@ Otherwise skip this step.
 After completing the “Installation” item, to build the project, run the command:
 
 ```bash
-    idf.py build flash monitor
+    idf.py -p PORT flash monitor
 ```
+Replace `PORT` with your ESP32 board's USB port name. If the `PORT` is not defined, the `idf.py` will try to connect automatically using the available USB ports.
 
 ## Future Enhancements
 - Integration with cloud platforms for remote monitoring.
