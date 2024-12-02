@@ -31,18 +31,22 @@ namespace autflr {
     constexpr const char* SENSOR_TAG_WATER = "[WATER SENSOR]";
 
     constexpr uint32_t STACK_SIZE = 4 * 1024;
-    constexpr uint32_t MIN = 0;
-    constexpr uint32_t MAX = 1023;
 
+    // Constants that require customisation by the user
+    constexpr uint16_t MIN_MAP_MOISTURE = 400; // Floor for mapping "raw" moisture sensor's value
+    constexpr uint16_t MAX_MAP_MOISTURE = 820; // Ceil for mapping "raw" moisture sensor's value
+    constexpr uint16_t MIN_MAP_WATER = 100; // Floor for mapping "raw" water sensor's value
+    constexpr uint16_t MAX_MAP_WATER = 495; // Ceil for mapping "raw" water sensor's value
     constexpr uint16_t MIN_LEVEL_WATER = 300;
-    constexpr uint16_t MIN_LEVEL_MOISTURE = 300;
+    constexpr uint16_t MIN_LEVEL_MOISTURE = 580;
+
     constexpr const char* WARNING_MESSAGE = "Low water level!";
 
-    constexpr uint16_t SENSOR_WARM_UP_TIME = 15; // "Warm-up" time for stabilization of sensors.
+    constexpr uint16_t SENSOR_WARM_UP_TIME = 10; // "Warm-up" time for stabilization of sensors.
     constexpr uint16_t TARGET_HOUR = 18; // Hour to start the irrigation.
     constexpr uint16_t TARGET_MINUTES = 00; // Minutes to start the irrigation.
-    constexpr uint32_t NEXT_TWO_DAYS = 48 * 60 * 60; // Next day for start the irrigation.
-    constexpr uint16_t PUMPING_TIME = 10;
+    constexpr uint32_t NEXT_DAY = 24 * 60 * 60; // Next day for start the irrigation.
+    constexpr uint16_t PUMPING_TIME = 20;
 
     /* FreeRTOS event group to signal when we are connected*/
     static EventGroupHandle_t wifiEventGroup;
@@ -93,9 +97,9 @@ namespace autflr {
         std::this_thread::sleep_for(std::chrono::seconds(SENSOR_WARM_UP_TIME)); // Sensor stabilisation.
 
         auto moisture = moistureSensor->getValueRaw();
-        auto moistureConverted = mapToPercentage(moisture, MIN, MAX);
+        auto moistureConverted = mapToPercentage(moisture, MIN_MAP_MOISTURE, MAX_MAP_MOISTURE, true);
         auto waterLevel = waterSensor->getValueRaw();
-        auto waterLevelConverted = mapToPercentage(waterLevel, MIN, MAX);
+        auto waterLevelConverted = mapToPercentage(waterLevel, MIN_MAP_WATER, MAX_MAP_WATER);
 
         lcdDevice->print(std::format("{}{:.1f}%", "Moisture:", moistureConverted), 0, 0);
         lcdDevice->print(std::format("{}{:.1f}%", "Water:", waterLevelConverted), 1, 0);
@@ -108,7 +112,7 @@ namespace autflr {
             waterLevel
         );
 
-        if (moisture <= MIN_LEVEL_MOISTURE) {
+        if (moisture >= MIN_LEVEL_MOISTURE) {
             if (waterLevel <= MIN_LEVEL_WATER) {
                 ESP_LOGW(APP_TAG, "%s", WARNING_MESSAGE);
                 lcdDevice->clear();
@@ -121,9 +125,9 @@ namespace autflr {
 
                 // TODO REFACTORING!
                 moisture = moistureSensor->getValueRaw();
-                moistureConverted = mapToPercentage(moisture, MIN, MAX);
+                moistureConverted = mapToPercentage(moisture, MIN_MAP_MOISTURE, MAX_MAP_MOISTURE, true);
                 waterLevel = waterSensor->getValueRaw();
-                waterLevelConverted = mapToPercentage(waterLevel, MIN, MAX);
+                waterLevelConverted = mapToPercentage(waterLevel, MIN_MAP_WATER, MAX_MAP_WATER);
 
                 lcdDevice->print(std::format("{}{:.1f}%", "Moisture:", moistureConverted), 0, 0);
                 lcdDevice->print(std::format("{}{:.1f}%", "Water:", waterLevelConverted), 1, 0);
@@ -159,7 +163,7 @@ namespace autflr {
         std::time_t targetTime = std::mktime(&timeInfo);
 
         if (targetTime <= now) {
-            targetTime += NEXT_TWO_DAYS;
+            targetTime += NEXT_DAY;
         }
 
         ESP_LOGI(APP_TAG, "Current time: %s", std::asctime(std::localtime(&now)));
