@@ -38,7 +38,7 @@ namespace autflr {
     constexpr uint16_t MIN_MAP_WATER = 100; // Floor for mapping "raw" water sensor's value
     constexpr uint16_t MAX_MAP_WATER = 495; // Ceil for mapping "raw" water sensor's value
     constexpr uint16_t MIN_LEVEL_WATER = 300;
-    constexpr uint16_t MIN_LEVEL_MOISTURE = 580;
+    constexpr uint16_t MIN_LEVEL_MOISTURE = 715;
 
     constexpr const char* WARNING_MESSAGE = "Low water level!";
 
