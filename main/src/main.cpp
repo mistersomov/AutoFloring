@@ -11,7 +11,6 @@
 #include "esp_netif_sntp.h"
 #include "esp_sleep.h"
 #include "esp_sntp.h"
-#include "gpio_cxx.hpp"
 
 #include <chrono>
 #include <ctime>
@@ -72,7 +71,7 @@ namespace autflr {
 
     /** Starts the irrigation process. */
     void irrigate() {
-        auto lcdDevice = i2cDeviceFactory.createDevice<autflr::Lcd>(I2C_ADDR_BIT_LEN_7, LCD_ADDRESS);
+        auto lcdDevice = i2cDeviceFactory.createDevice<autflr::Lcd>(LCD_ADDRESS);
 
         if (!lcdDevice) {
             ESP_LOGE(APP_TAG, "Failed to initialize LCD device.");

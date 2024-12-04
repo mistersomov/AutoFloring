@@ -1,11 +1,12 @@
 #ifndef I2C_DEVICE_FACTORY_HPP
 #define I2C_DEVICE_FACTORY_HPP
 
-#include "I2cSlaveDevice.hpp"
-
-#include "driver/gpio.h"
+#include "i2c_cxx.hpp"
+#include "esp_log.h"
 
 #include <cstdint>
+
+constexpr idf::I2CNumber I2C_MASTER_NUM(idf::I2CNumber::I2C0());
 
 namespace autflr {
     class I2cDeviceFactory {
@@ -18,60 +19,49 @@ namespace autflr {
             return instance;
         }
 
+        /**
+         * @brief Creates an I2C device of the specified type.
+         * @tparam DeviceType The type of the I2C device to create.
+         * @param address The I2C address of the device.
+         * @param args Additional arguments required for the device's constructor.
+         * @return A unique pointer to the created device.
+         */
         template<typename DeviceType, typename... Args> 
         std::unique_ptr<DeviceType> createDevice(
-            i2c_addr_bit_len_t addressLength,
-            uint16_t address,
+            uint8_t address,
             Args&&... args
         ) {
-            if (mBusHandler.get() == nullptr) {
-                setHandler();
+            if (mI2CMaster.get() == nullptr) {
+                setupMaster();
             }
-            i2c_device_config_t cfg = {
-                .dev_addr_length = addressLength,
-                .device_address = address,
-                .scl_speed_hz = SCL_SPEED_HZ_DEFAULT,
-            };
-            i2c_master_dev_handle_t handler;
 
-            ESP_ERROR_CHECK(i2c_master_probe(mBusHandler.get(), address, PROBE_WAITING_TIMEOUT));
-            ESP_ERROR_CHECK(i2c_master_bus_add_device(mBusHandler.get(), &cfg, &handler));
-
-            return std::make_unique<DeviceType>(handler, std::forward<Args>(args)...);
+            return std::make_unique<DeviceType>(mI2CMaster.get(), address, std::forward<Args>(args)...);
         }
 
     private:
         I2cDeviceFactory() {}
 
-        void setHandler() {
-            i2c_master_bus_config_t cfg = {
-                .i2c_port = I2C_PORT_DEFAULT,
-                .sda_io_num = I2C_MASTER_SDA_IO,
-                .scl_io_num = I2C_MASTER_SCL_IO,
-                .clk_source = I2C_CLK_SRC_DEFAULT,
-                .glitch_ignore_cnt = GLITCH_IGNORE_COUNT_DEFAULT,
-            };
-            i2c_master_bus_handle_t handler;
+        void setupMaster() {
+            try {
+                mI2CMaster = std::make_shared<idf::I2CMaster>(
+                    I2C_MASTER_NUM,
+                    idf::SCL_GPIO(I2C_MASTER_SCL_IO),
+                    idf::SDA_GPIO(I2C_MASTER_SDA_IO),
+                    idf::Frequency(FREQUENCY)
+                );
 
-            ESP_ERROR_CHECK(i2c_new_master_bus(&cfg, &handler));
-            mBusHandler.reset(handler);
+                ESP_LOGI(TAG, "I2C initialized successfully");
+            } catch (const idf::I2CException& e) {
+                ESP_LOGE(TAG, "I2C Exception with error: %s (0x%X)", e.what(), e.error);
+            }
         }
 
     private:
-        struct BusHandlerDeleter {
-            void operator()(i2c_master_bus_t* pBus) {
-                if (pBus) {
-                    ESP_ERROR_CHECK(i2c_del_master_bus(pBus));
-                }
-            }
-        };
-        std::unique_ptr<i2c_master_bus_t, BusHandlerDeleter> mBusHandler{nullptr};
-        const gpio_num_t I2C_MASTER_SDA_IO = GPIO_NUM_21;
-        const gpio_num_t I2C_MASTER_SCL_IO = GPIO_NUM_22;
-        static constexpr int32_t I2C_PORT_DEFAULT = I2C_NUM_0;
-        static constexpr uint32_t SCL_SPEED_HZ_DEFAULT = 100000;
-        static constexpr uint8_t GLITCH_IGNORE_COUNT_DEFAULT = 7;
-        static constexpr uint16_t PROBE_WAITING_TIMEOUT = 10000;
+        std::shared_ptr<idf::I2CMaster> mI2CMaster{nullptr};
+        static constexpr uint16_t I2C_MASTER_SDA_IO = 21;
+        static constexpr uint16_t I2C_MASTER_SCL_IO = 22;
+        static constexpr uint32_t FREQUENCY = 400000;
+        constexpr static const char* TAG{"[I2cDeviceFactory]"};
     };
 }
 

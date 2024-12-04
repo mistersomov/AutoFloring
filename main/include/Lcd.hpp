@@ -1,39 +1,36 @@
 #ifndef LCD_HPP
 #define LCD_HPP
 
-#include "I2cSlaveDevice.hpp"
-
+#include "i2c_cxx.hpp"
 #include "esp_log.h"
 
 #include <chrono>
 #include <string>
 #include <thread>
-#include <vector>
 
 namespace autflr {
-    class Lcd : public I2cSlaveDevice {
+    class Lcd {
     public:
-        Lcd(i2c_master_dev_t* pHandler);
+        Lcd(idf::I2CMaster* pMaster, uint8_t address);
 
-        void putCursor(uint8_t row, uint32_t col) const;
+        void putCursor(uint16_t row, uint16_t col) const;
         void print(
             const std::string& message,
             uint8_t row,
             uint32_t col
         ) const;
-
         inline void clear() const {
             sendCmd(0x01);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
 
-    protected:
-        void initialize() const override;
-
     private:
+        void initialize() const;
         void sendCmd(uint8_t cmd) const;
         void sendData(uint8_t data) const;
 
+    private:
+        idf::I2CMaster* mMasterPtr{nullptr};
+        idf::I2CAddress mAddress{0};
         static constexpr uint8_t ENABLE_BIT = 0x0C;
         static constexpr uint8_t DISABLE_BIT = 0x08;
         static constexpr uint8_t ENABLE_DATA = 0x0D;
