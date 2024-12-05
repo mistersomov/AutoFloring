@@ -11,6 +11,7 @@
 #include "esp_netif_sntp.h"
 #include "esp_sleep.h"
 #include "esp_sntp.h"
+#include "sdkconfig.h"
 
 #include <chrono>
 #include <ctime>
@@ -209,7 +210,7 @@ namespace autflr {
     void initializeWifi() {
         wifiEventGroup = xEventGroupCreate();
         
-        wifiManager.configure("MERCUSYS_37B4", "ssau_2015");
+        wifiManager.configure(CONFIG_WIFI_SSID, CONFIG_WIFI_PASSWORD);
 
         esp_event_handler_instance_t instance_any_id;
         esp_event_handler_instance_t instance_got_ip;
