@@ -42,7 +42,7 @@ Next, go to `Component config`. Scroll through the list of possible configuratio
 Or, a second approach:
 - After:
 ```bash
-  git clone https://github.com/mistersomov/IoT-AutoIrrigation
+    idf.py menuconfig
 ```
 - Press the character search hotkey `/`
 - Type `SSID` in the search bar, and press enter.
