@@ -31,7 +31,24 @@ If you do not have the ESP-IDF Framework pre-installed, follow the installation 
     [ESP-IDF Get Started](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/get-started/index.html#installation).
 Otherwise skip this step.
 
-3. Configure Wi-Fi credentials and thresholds in `main.cpp`
+3. Configure Wi-Fi credentials:
+While in the root directory of the project, execute the command:
+```bash
+    idf.py menuconfig
+```
+Next, go to `Component config`. Scroll through the list of possible configurations to the very end. There you will find `Wi-Fi Credentials`. Go to it.
+
+
+Or, a second approach:
+- After:
+```bash
+  git clone https://github.com/mistersomov/IoT-AutoIrrigation
+```
+- Press the character search hotkey `/`
+- Type `SSID` in the search bar, and press enter.
+
+Example:
+![Creds](/assets/wi_fi_creds.png)
 
 ### Build
 After completing the “Installation” item, to build the project, run the command:
