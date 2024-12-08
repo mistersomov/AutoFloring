@@ -1,8 +1,17 @@
-# Auto-Irrigation System for ESP32 🌱💧
-This project is an automated irrigation system powered by an ESP32 
-microcontroller. It uses sensors to monitor soil moisture and water levels, controls a pump for irrigation, and logs information on an LCD display. The system ensures efficient water usage while minimizing human intervention.
+<div align="center"><a name="readme-top"></a>
+<img src="assets/logo.png"/>
 
-## Features
+# Auto-Irrigation System for ESP32 🌱💧
+
+<div/>
+<div align="left">
+
+This project is an automated irrigation system powered by an ESP32 
+microcontroller.<br/>
+It uses sensors to monitor soil moisture and water levels, controls a pump for irrigation, and logs information on an LCD display.<br/>
+The system ensures efficient water usage while minimizing human intervention.<br/>
+
+## 🌟 Features
 - **Soil & Water Monitoring**: Reads data from moisture and water level sensors.
 - **Automated Irrigation**: Activates the pump when moisture levels drop below a threshold.
 - **LCD Display**: Displays real-time sensor readings and warnings.
@@ -10,7 +19,7 @@ microcontroller. It uses sensors to monitor soil moisture and water levels, cont
 - **Energy Efficiency**: Enters deep sleep mode between irrigation cycles.
 - **Error Handling**: Provides warnings for low water levels and device initialization failures.
 
-## Hardware Requirements
+## 🛠️ Hardware Requirements
 - ESP32 Development Board
 - Soil Moisture Sensor
 - Water Level Sensor
@@ -18,16 +27,15 @@ microcontroller. It uses sensors to monitor soil moisture and water levels, cont
 - Water Pump 5V
 - Power Supply (e.g., battery or solar panel)
 
-## Getting Started
+## 🚀 Getting Started
 
-### Installation
+### 1️⃣ Installation
 1. Clone the repository:
-
 ```bash
   git clone https://github.com/mistersomov/IoT-AutoIrrigation
 ```
-2. Install ESP-IDF (Espressif IoT Development Framework):
-If you do not have the ESP-IDF Framework pre-installed, follow the installation instructions on the official documentation
+2. Install `ESP-IDF` (`Espressif IoT Development Framework`):
+If you do not have the `ESP-IDF` Framework pre-installed, follow the installation instructions on the official documentation
     [ESP-IDF Get Started](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/get-started/index.html#installation).
 Otherwise skip this step.
 
@@ -36,7 +44,9 @@ While in the root directory of the project, execute the command:
 ```bash
     idf.py menuconfig
 ```
-Next, go to `Component config`. Scroll through the list of possible configurations to the very end. There you will find `Wi-Fi Credentials`. Go to it.
+- Next, go to `Component config`
+- Scroll through the list of possible configurations to the very end. There you will find `Wi-Fi Credentials`
+- Go to it.
 
 
 Or, a second approach:
@@ -48,20 +58,24 @@ Or, a second approach:
 - Type `SSID` in the search bar, and press enter.
 
 Example:
-![Creds](/assets/wi_fi_creds.png)
+<div align="center">
+<img src="assets/wi_fi_creds.png" width="600"/>
+</div>
 
-### Build
+### 2️⃣ Build
 After completing the “Installation” item, to build the project, run the command:
-
 ```bash
     idf.py -p PORT flash monitor
 ```
 Replace `PORT` with your ESP32 board's USB port name. If the `PORT` is not defined, the `idf.py` will try to connect automatically using the available USB ports.
 
-## Future Enhancements
+## 📅 Future Enhancements
 - Integration with cloud platforms for remote monitoring.
 - Advanced scheduling based on weather data.
 - Customizable thresholds via a web interface.
 
-## Screenshots
-![Screenshot](/assets/auto_irrigation.jpg)
+## 📷 Screenshots
+<div align="center">
+<img src="assets/auto_irrigation.jpg" width="600"/>
+</div>
+</div>
