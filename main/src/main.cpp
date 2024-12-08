@@ -79,6 +79,9 @@ namespace autflr {
             return;
         }
 
+        lcdDevice->clear();
+        lcdDevice->print("Measuring...", 0, 0);
+
         auto moistureSensor = sensorFactory.createSensorOneShot(SENSOR_TAG_MOISTURE, ADC_UNIT_1, ADC_CHANNEL_6);
         auto waterSensor = sensorFactory.createSensorOneShot(SENSOR_TAG_WATER, ADC_UNIT_1, ADC_CHANNEL_7);
 
@@ -92,7 +95,6 @@ namespace autflr {
         auto warningLed = std::make_unique<idf::GPIO_Output>(idf::GPIONum(WARNING_LED_PIN));
 
         warningLed->set_low();
-        lcdDevice->clear();
         sensorPower->set_high();
         std::this_thread::sleep_for(std::chrono::seconds(SENSOR_WARM_UP_TIME)); // Sensor stabilisation.
 
