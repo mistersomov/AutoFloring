@@ -16,6 +16,7 @@
 #include <chrono>
 #include <ctime>
 #include <thread>
+#include <string_view>
 
 #define CORE0 0x00
 #define CORE1 0x01
@@ -25,10 +26,10 @@
 #define WARNING_LED_PIN 25
 
 namespace autflr {
-    constexpr const char* APP_TAG = "[IRRIGATION]";
-    constexpr const char* NTP_TAG = "[NTP]";
-    constexpr const char* SENSOR_TAG_MOISTURE = "[MOISTURE SENSOR]";
-    constexpr const char* SENSOR_TAG_WATER = "[WATER SENSOR]";
+    constexpr std::string_view APP_TAG = "[IRRIGATION]";
+    constexpr std::string_view NTP_TAG = "[NTP]";
+    constexpr std::string_view SENSOR_TAG_MOISTURE = "[MOISTURE SENSOR]";
+    constexpr std::string_view SENSOR_TAG_WATER = "[WATER SENSOR]";
 
     constexpr uint32_t STACK_SIZE = 4 * 1024;
 
@@ -40,7 +41,7 @@ namespace autflr {
     constexpr uint16_t MIN_LEVEL_WATER = 300;
     constexpr uint16_t MIN_LEVEL_MOISTURE = 715;
 
-    constexpr const char* WARNING_MESSAGE = "Low water level!";
+    constexpr std::string_view WARNING_MESSAGE = "Low water level!";
 
     constexpr uint16_t SENSOR_WARM_UP_TIME = 10; // "Warm-up" time for stabilization of sensors.
     constexpr uint16_t TARGET_HOUR = 18; // Hour to start the irrigation.
@@ -75,18 +76,18 @@ namespace autflr {
         auto lcdDevice = i2cDeviceFactory.createDevice<autflr::Lcd>(LCD_ADDRESS);
 
         if (!lcdDevice) {
-            ESP_LOGE(APP_TAG, "Failed to initialize LCD device.");
+            ESP_LOGE(APP_TAG.data(), "Failed to initialize LCD device.");
             return;
         }
 
         lcdDevice->clear();
         lcdDevice->print("Measuring...", 0, 0);
 
-        auto moistureSensor = sensorFactory.createSensorOneShot(SENSOR_TAG_MOISTURE, ADC_UNIT_1, ADC_CHANNEL_6);
-        auto waterSensor = sensorFactory.createSensorOneShot(SENSOR_TAG_WATER, ADC_UNIT_1, ADC_CHANNEL_7);
+        auto moistureSensor = sensorFactory.createSensorOneShot(SENSOR_TAG_MOISTURE.data(), ADC_UNIT_1, ADC_CHANNEL_6);
+        auto waterSensor = sensorFactory.createSensorOneShot(SENSOR_TAG_WATER.data(), ADC_UNIT_1, ADC_CHANNEL_7);
 
         if (!moistureSensor || !waterSensor) {
-            ESP_LOGE(APP_TAG, "Failed to initialize sensors.");
+            ESP_LOGE(APP_TAG.data(), "Failed to initialize sensors.");
             return;
         }
 
@@ -106,7 +107,7 @@ namespace autflr {
         lcdDevice->print(std::format("{}{:.1f}%", "Moisture:", moistureConverted), 0, 0);
         lcdDevice->print(std::format("{}{:.1f}%", "Water:", waterLevelConverted), 1, 0);
         ESP_LOGI(
-            APP_TAG,
+            APP_TAG.data(),
             "Moisture:%.1f%%(%d), Water level: %.1f%%(%d)",
             moistureConverted,
             moisture,
@@ -116,9 +117,9 @@ namespace autflr {
 
         if (moisture >= MIN_LEVEL_MOISTURE) {
             if (waterLevel <= MIN_LEVEL_WATER) {
-                ESP_LOGW(APP_TAG, "%s", WARNING_MESSAGE);
+                ESP_LOGW(APP_TAG.data(), "%s", WARNING_MESSAGE.data());
                 lcdDevice->clear();
-                lcdDevice->print(WARNING_MESSAGE, 0, 0);
+                lcdDevice->print(WARNING_MESSAGE.data(), 0, 0);
                 warningLed->set_high();
             } else {
                 pumpPower->set_high();
@@ -134,10 +135,10 @@ namespace autflr {
                 lcdDevice->print(std::format("{}{:.1f}%", "Moisture:", moistureConverted), 0, 0);
                 lcdDevice->print(std::format("{}{:.1f}%", "Water:", waterLevelConverted), 1, 0);
 
-                ESP_LOGI(APP_TAG, "Irrigation process completed.");
+                ESP_LOGI(APP_TAG.data(), "Irrigation process completed.");
             }
         } else {
-            ESP_LOGI(APP_TAG, "No irrigation needed.");
+            ESP_LOGI(APP_TAG.data(), "No irrigation needed.");
         }
 
         sensorPower->set_low();
@@ -168,21 +169,21 @@ namespace autflr {
             targetTime += NEXT_DAY;
         }
 
-        ESP_LOGI(APP_TAG, "Current time: %s", std::asctime(std::localtime(&now)));
-        ESP_LOGI(APP_TAG, "Target time: %s", std::asctime(std::localtime(&targetTime)));
+        ESP_LOGI(APP_TAG.data(), "Current time: %s", std::asctime(std::localtime(&now)));
+        ESP_LOGI(APP_TAG.data(), "Target time: %s", std::asctime(std::localtime(&targetTime)));
 
         return static_cast<uint64_t>((targetTime - now) * 1000000ULL); // us.
     }
 
     /** Sets the current time by initialize a particular SNTP server and also starting the SNTP service.*/
     void syncTime() {
-        ESP_LOGI(NTP_TAG, "Initializing SNTP...");
+        ESP_LOGI(NTP_TAG.data(), "Initializing SNTP...");
 
         esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
 
         esp_netif_sntp_init(&config);
         if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK) {
-            ESP_LOGE(NTP_TAG, "Failed to update system time within 10s timeout");
+            ESP_LOGE(NTP_TAG.data(), "Failed to update system time within 10s timeout");
         }
     }
 
@@ -200,10 +201,10 @@ namespace autflr {
             } else {
                 xEventGroupSetBits(wifiEventGroup, WIFI_FAIL_BIT);
             }
-            ESP_LOGI(APP_TAG,"connect to the AP fail");
+            ESP_LOGI(APP_TAG.data(),"connect to the AP fail");
         } else if (base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
             ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-            ESP_LOGI(APP_TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+            ESP_LOGI(APP_TAG.data(), "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
             wifiManager.resetRetry();
             xEventGroupSetBits(wifiEventGroup, WIFI_CONNECTED_BIT);
         }
@@ -246,12 +247,12 @@ namespace autflr {
 
         irrigate();
 
-        ESP_LOGI(APP_TAG, "Scheduling next run in %llu seconds.", timeToNextRun / 1000000ULL);
+        ESP_LOGI(APP_TAG.data(), "Scheduling next run in %llu seconds.", timeToNextRun / 1000000ULL);
         esp_deep_sleep(timeToNextRun);
     }
 }
 
 extern "C" void app_main(void) {
-    ESP_LOGI(autflr::APP_TAG, "Application started.");
+    ESP_LOGI(autflr::APP_TAG.data(), "Application started.");
     autflr::launch();
 }
