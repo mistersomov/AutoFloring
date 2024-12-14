@@ -51,7 +51,7 @@ While in the root directory of the project, execute the command:
 
 Example:
 <div align="center">
-<img src="assets/wi_fi_creds.gif" width="600"/>
+<img src="assets/wifi_creds.gif" width="600"/>
 </div>
 
 ### 2️⃣ Build
@@ -68,6 +68,6 @@ Replace `PORT` with your ESP32 board's USB port name. If the `PORT` is not defin
 
 ## 📷 Screenshots
 <div align="center">
-<img src="assets/auto_irrigation.jpg" width="600"/>
+<img src="assets/auto_irrigation.jpg" width="50%" height="50%"/>
 </div>
 </div>
