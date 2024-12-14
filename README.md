@@ -44,22 +44,14 @@ While in the root directory of the project, execute the command:
 ```bash
     idf.py menuconfig
 ```
-- Next, go to `Component config`
-- Scroll through the list of possible configurations to the very end. There you will find `Wi-Fi Credentials`
-- Go to it.
-
-
-Or, a second approach:
-- After:
-```bash
-    idf.py menuconfig
-```
-- Press the character search hotkey `/`
-- Type `SSID` in the search bar, and press enter.
+- Next, `Irrigation Configutraion` menu.
+- Go to `Wi-Fi`.
+- Enter your credentials.
+- Exit with save.
 
 Example:
 <div align="center">
-<img src="assets/wi_fi_creds.png" width="600"/>
+<img src="assets/wi_fi_creds.gif" width="600"/>
 </div>
 
 ### 2️⃣ Build

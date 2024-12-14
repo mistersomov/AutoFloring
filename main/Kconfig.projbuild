@@ -1,0 +1,50 @@
+menu "Irrigation Configutraion"
+
+    menu "Available Devices"
+        config ENABLE_LCD
+            bool "LCD (only LCD1602 currently)"
+            default y
+            help
+                Select this if your board has an LCD.
+
+        config ENABLE_WATER_SENSOR
+            bool "Water Sensor"
+            default y
+            help
+                Select this option if your board has a water sensor to measure water level.
+    endmenu
+
+    menu "Pins"
+        config PUMP_PIN
+            int "Pump pin"
+            default 33
+
+        config SENSOR_POWER_PIN
+            int "Sensors pin"
+            default 32
+
+        config SETTINGS_PIN
+            int "Settings pin"
+            default 26
+            help
+                This option enables wake up from deep sleep from GPIO26(ESP32). The pin should be
+                connected to HIGH to avoid being in a floating state. When triggering a wake up, connect the pin to LOW. Note that floating pins may trigger a wake up.
+
+                Note: On ESP32, ext0 wakeup source can not be used together with touch wakeup source.
+    endmenu
+
+    menu "Wi-Fi"
+        config WIFI_SSID
+            string "Login"
+            default "YOUR LOGIN"
+            help
+                Enter the SSID of your Wi-Fi network.
+
+        config WIFI_PASSWORD
+            string "Password"
+            default "YOUR PASSWORD"
+            help
+                Enter the password of your Wi-Fi network.
+    endmenu
+
+endmenu
