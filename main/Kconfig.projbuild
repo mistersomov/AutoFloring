@@ -23,6 +23,10 @@ menu "Irrigation Configutraion"
             int "Sensors pin"
             default 32
 
+        config WARNING_LED_PIN
+            int "Warning LED pin"
+            default 25
+
         config SETTINGS_PIN
             int "Settings pin"
             default 26

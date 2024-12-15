@@ -1,6 +1,8 @@
 #ifndef WIFI_MANAGER_HPP
 #define WIFI_MANAGER_HPP
 
+#include "esp_event.h"
+#include "esp_log.h"
 #include "esp_wifi.h"
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -10,13 +12,6 @@
 #include <string>
 #include <cstring>
 #include <memory>
-
-/* The event group allows multiple bits for each event, but we only care about two events:
- * - we are connected to the AP with an IP.
- * - we failed to connect after the maximum amount of retries.
- */
-#define WIFI_CONNECTED_BIT BIT0
-#define WIFI_FAIL_BIT      BIT1
 
 namespace autflr {
     constexpr uint16_t WIFI_MAXIMUM_RETRY = 5;
@@ -46,34 +41,7 @@ namespace autflr {
             return instance;
         }
 
-        inline void configure(const std::string& ssid, const std::string& bssid) {
-            esp_err_t ret = nvs_flash_init();
-
-            if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-                ESP_ERROR_CHECK(nvs_flash_erase());
-                ret = nvs_flash_init();
-            }
-
-            ESP_ERROR_CHECK(ret);
-
-            mCreds = loadCredentials();
-
-            if (mCreds->isLoaded) {
-                if (mCreds->ssid != ssid || mCreds->bssid != bssid) {
-                    saveCredentials(ssid, bssid);
-                }
-
-                ESP_LOGI(TAG.c_str(), "Configuring Wi-Fi with SSID: %s", ssid.c_str());
-                ESP_ERROR_CHECK(esp_netif_init());
-                ESP_ERROR_CHECK(esp_event_loop_create_default());
-                esp_netif_create_default_wifi_sta();
-
-                wifi_init_config_t initCfg = WIFI_INIT_CONFIG_DEFAULT();
-                ESP_ERROR_CHECK(esp_wifi_init(&initCfg));
-            }
-        }
-
-        inline void start() const {
+        void start() const {
             wifi_config_t wifiConfig = {};
             strncpy(reinterpret_cast<char*>(wifiConfig.sta.ssid), mCreds->ssid.c_str(), MAX_SSID_LENGTH);
             strncpy(reinterpret_cast<char*>(wifiConfig.sta.password), mCreds->bssid.c_str(), MAX_BSSID_LENGTH);
@@ -93,7 +61,7 @@ namespace autflr {
             if (mRetryNum < WIFI_MAXIMUM_RETRY) {
                 connect();
                 mRetryNum++;
-                ESP_LOGI(TAG.c_str(), "retry to connect to the AP");
+                ESP_LOGI(TAG.data(), "retry to connect to the AP");
             }
         }
 
@@ -105,15 +73,44 @@ namespace autflr {
             mRetryNum = 0;
         }
 
+        void configure(const std::string& ssid, const std::string& bssid) {
+            esp_err_t ret = nvs_flash_init();
+
+            if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+                ESP_ERROR_CHECK(nvs_flash_erase());
+                ret = nvs_flash_init();
+            }
+
+            ESP_ERROR_CHECK(ret);
+
+            mCreds = loadCredentials();
+
+            if (mCreds->isLoaded) {
+                if (mCreds->ssid != ssid || mCreds->bssid != bssid) {
+                    saveCredentials(ssid, bssid);
+                }
+
+                ESP_LOGI(TAG.data(), "Configuring Wi-Fi with SSID: %s", ssid.c_str());
+                ESP_ERROR_CHECK(esp_netif_init());
+                esp_netif_create_default_wifi_sta();
+
+                wifi_init_config_t initCfg = WIFI_INIT_CONFIG_DEFAULT();
+                ESP_ERROR_CHECK(esp_wifi_init(&initCfg));
+            }
+        }
+
     private:
-        WiFiManager() {}
+        WiFiManager() {
+            ESP_LOGI(TAG.data(), "Initializing WiFi...");
+            registerEventHandlers();
+        }
 
         inline std::unique_ptr<WiFiCredentials> loadCredentials() {
             esp_err_t ret = ESP_OK;
             std::unique_ptr<nvs::NVSHandle> handler = nvs::open_nvs_handle("storage", NVS_READWRITE, &ret);
 
             if (ret != ESP_OK) {
-                ESP_LOGE(TAG.c_str(), "Failed to open NVS: %s", esp_err_to_name(ret));
+                ESP_LOGE(TAG.data(), "Failed to open NVS: %s", esp_err_to_name(ret));
                 return std::make_unique<WiFiCredentials>();
             } else {
                 char ssid[MAX_SSID_LENGTH] = {0};
@@ -124,10 +121,10 @@ namespace autflr {
                 if ((ret = handler->get_string(WIFI_SSID.c_str(), ssid, ssidLen)) != ESP_OK
                     || (ret = handler->get_string(WIFI_BSSID.c_str(), bssid, bssidLen)) != ESP_OK
                 ) {
-                    ESP_LOGW(TAG.c_str(), "No Wi-Fi credentials found: %s", esp_err_to_name(ret));
+                    ESP_LOGW(TAG.data(), "No Wi-Fi credentials found: %s", esp_err_to_name(ret));
                     return std::make_unique<WiFiCredentials>(true, "", "");
                 } else {
-                    ESP_LOGI(TAG.c_str(), "Wi-Fi credentials found.");
+                    ESP_LOGI(TAG.data(), "Wi-Fi credentials found.");
                     return std::make_unique<WiFiCredentials>(true, std::string(ssid, ssidLen), std::string(bssid, bssidLen));
                 }
             }
@@ -138,24 +135,79 @@ namespace autflr {
             std::unique_ptr<nvs::NVSHandle> handler = nvs::open_nvs_handle("storage", NVS_READWRITE, &ret);
 
             if (ret != ESP_OK) {
-                ESP_LOGE(TAG.c_str(), "Failed to open NVS handle: %s", esp_err_to_name(ret));
+                ESP_LOGE(TAG.data(), "Failed to open NVS handle: %s", esp_err_to_name(ret));
                 return;
             }
             if ((ret = handler->set_string(WIFI_SSID.c_str(), ssid.c_str())) != ESP_OK) {
-                ESP_LOGE(TAG.c_str(), "Failed to save SSID: %s", esp_err_to_name(ret));
+                ESP_LOGE(TAG.data(), "Failed to save SSID: %s", esp_err_to_name(ret));
             }
             if ((ret = handler->set_string(WIFI_BSSID.c_str(), bssid.c_str())) != ESP_OK) {
-                ESP_LOGE(TAG.c_str(), "Failed to save BSSID: %s", esp_err_to_name(ret));
+                ESP_LOGE(TAG.data(), "Failed to save BSSID: %s", esp_err_to_name(ret));
             }
             if ((ret = handler->commit()) != ESP_OK) {
-                ESP_LOGE(TAG.c_str(), "Failed to commit changes: %s", esp_err_to_name(ret));
+                ESP_LOGE(TAG.data(), "Failed to commit changes: %s", esp_err_to_name(ret));
             }
         }
 
+        void registerEventHandlers() {
+            ESP_ERROR_CHECK(
+                esp_event_handler_register(
+                    WIFI_EVENT,
+                    ESP_EVENT_ANY_ID,
+                    &WiFiManager::handleWiFiEvent,
+                    this
+                )
+            );
+            ESP_ERROR_CHECK(
+                esp_event_handler_register(
+                    IP_EVENT,
+                    IP_EVENT_STA_GOT_IP,
+                    &WiFiManager::handleIpEvent,
+                    this
+                )
+            );
+        }
+
+        static void handleWiFiEvent(void* arg, esp_event_base_t base, int32_t id, void* data) {
+            auto* manager = static_cast<WiFiManager*>(arg);
+
+            if (manager == nullptr) {
+                ESP_LOGE(TAG.data(), "manager is null");
+                return;
+            }
+
+            switch(id) {
+                case WIFI_EVENT_STA_START:
+                    manager->connect();
+                    break;
+                case WIFI_EVENT_STA_DISCONNECTED:
+                    if (manager->getRetryNum() < WIFI_MAXIMUM_RETRY) {
+                        manager->connect();
+                    } else {
+                        ESP_LOGE(TAG.data(),"connect to the AP fail");
+                    }
+                    break;
+            }
+        }
+
+        static void handleIpEvent(void* arg, esp_event_base_t base, int32_t id, void* data) {
+            auto* manager = static_cast<WiFiManager*>(arg);
+
+            if (manager == nullptr) {
+                ESP_LOGE(TAG.data(), "manager is null");
+                return;
+            }
+
+            ip_event_got_ip_t* gotIpEvent = static_cast<ip_event_got_ip_t*>(data);
+
+            ESP_LOGI(TAG.data(), "got ip:" IPSTR, IP2STR(&gotIpEvent->ip_info.ip));
+            manager->resetRetry();
+        }
+
     private:
-        uint16_t mRetryNum{0};
         std::unique_ptr<WiFiCredentials> mCreds{nullptr};
-        constexpr static const std::string TAG{"[WIFI]"};
+        uint16_t mRetryNum{0};
+        static constexpr const std::string_view TAG{"[WIFI]"};
     };
 }
 
