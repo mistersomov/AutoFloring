@@ -21,6 +21,7 @@ namespace autflr {
         ) const;
         inline void clear() const {
             sendCmd(0x01);
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
         }
 
     private:
