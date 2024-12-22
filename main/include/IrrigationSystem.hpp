@@ -9,7 +9,6 @@
 
 #include <memory>
 #include <string_view>
-#include <functional>
 
 #if CONFIG_ENABLE_LCD
 #include "Lcd.hpp"

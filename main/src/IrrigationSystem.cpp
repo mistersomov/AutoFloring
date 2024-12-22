@@ -53,6 +53,14 @@ namespace autflr {
                 this
             )
         );
+        ESP_ERROR_CHECK(
+            esp_event_handler_register(
+                SETTINGS.base,
+                SETTINGS.id.get_id(),
+                &IrrigationSystem::handleEvent,
+                this
+            )
+        );
     }
 
     void IrrigationSystem::handleEvent(
@@ -69,11 +77,19 @@ namespace autflr {
         }
 
         if (base == IRRIGATION_EVENT_BASE) {
-            if (id == SYNC_TIME.id.get_id()) {
-                system->syncTime();
-            } else if (base == IRRIGATE.base) {
-                auto* system = static_cast<IrrigationSystem*>(arg);
-                system->irrigate();
+            switch(id) {
+                case SYNC_TIME.id.get_id():
+                    system->syncTime();
+                    break;
+                case IRRIGATE.id.get_id():
+                    auto* system = static_cast<IrrigationSystem*>(arg);
+                    system->irrigate();
+                    break;
+                case SETTINGS.id.get_id():
+                    system->openSettings();
+                    break;
+                default:
+                    break;
             }
         }
     }
